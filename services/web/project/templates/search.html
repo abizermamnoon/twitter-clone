@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Search</h2>
+
+{% if invalid_message %}
+<p class="red">
+ERROR: Invalid message.
+</p>
+{% endif %}
+
+<form action="/search" method="POST">
+    <table>
+        <tr>
+            <td><textarea name="message" class="message_box" rows="4" cols="50">{{ request.form.get('message', '') }}</textarea></td>
+        </tr>
+        <tr>
+            <td><input type="submit" value="Search Message" class="submit"></td>
+        </tr>
+    </table>
+</form>
+
+{% if search_results %}
+<h3>Search Results:</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for result in search_results %}
+    <tr>
+      <td>{{ result }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+{% if search_results %}
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+    {% if page > 1 %}
+    <li class="page-item"><a class="page-link" href="/search?page={{ page - 1 }}&message={{ request.form.get('message', '') }}">Previous</a></li>
+    {% endif %}
+
+    {% if page < total_pages %}
+    <li class="page-item"><a class="page-link" href="/search?page={{ page + 1 }}&message={{ request.form.get('message', '') }}">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

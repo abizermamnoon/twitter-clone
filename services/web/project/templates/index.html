@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Home</h2>
+<table class="table table-bordered table-striped">
+  <thead>
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Message</th>
+      <th scope="col">Created At</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for message in messages %}
+    <tr>
+      <td>{{ message.id }}</td>
+      <td>{{ message.message }}</td>
+      <td>{{ message.created_at }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% if messages %}
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+    {% if request.cookies.get('page_number') %}
+    {% set current_page = request.cookies.get('page_number') | int %}
+    {% else %}
+    {% set current_page = 1 %}
+    {% endif %}
+    {% if current_page > 1 %}
+    <li class="page-item"><a class="page-link" href="/previous_page">Previous</a></li>
+    {% endif %}
+    {% if messages|length == 20 %}
+    <li class="page-item"><a class="page-link" href="/next_page">Next</a></li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}
