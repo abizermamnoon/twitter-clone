@@ -1,0 +1,20 @@
+name: web_test
+on:
+  push:
+    branches: ['*']
+  pull_request:
+    branches: ['*']
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup python3
+    - name: docker
+      run: |
+        docker-compose up -d --build
+        docker ps -a
+        sleep 20
+        pip3 install sqlalchemy
+        pip3 install tqdm
+        python3 load_small.py

@@ -1,7 +1,8 @@
 CREATE EXTENSION postgis;
 
 \set ON_ERROR_STOP on
-
+create extension RUM;
+CREATE INDEX idx_rum_message ON messages USING rum(to_tsvector('english', message));
 BEGIN;
 CREATE TABLE tweet_urls (
     id_tweets BIGINT PRIMARY KEY,
