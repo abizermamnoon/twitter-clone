@@ -148,6 +148,8 @@ def login():
             response.set_cookie('username', username)
             response.set_cookie('password', password)
             return response
+    
+
 
 @app.route('/logout')
 def logout():
@@ -198,7 +200,12 @@ def create_user():
                 result = connection.execute(text(
                     "INSERT INTO users (username, password, age) VALUES (:username, :password, :age);"
                     ),  {"username": username, "password": password, "age": age})  
-                response = make_response(redirect('/'))
+                template = render_template(
+                    'login.html',
+                    bad_credentials=False,
+                    logged_in=True)
+                 #return template
+                response = make_response(template)
                 response.set_cookie('username',username)
                 response.set_cookie('password',password)
                 return response

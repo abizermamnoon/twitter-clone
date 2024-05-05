@@ -18,5 +18,10 @@
 
         {% block content %}
         {% endblock %}
+        {% if logged_in %}
+        <script>
+            window.location.replace("/");
+        </script>
+        {% endif %}
     </body>
 </html>
