@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 db_uri = "postgresql://postgres:pass@localhost:9373"
 
 # Create the database engine
-engine = create_engine(db_uri, connect_args={'application_name': 'insert_data.py'})
+engine = create_engine(db_uri, connect_args={'application_name': 'load_small.py'})
 
 # Establish a connection
 connection = engine.connect()
