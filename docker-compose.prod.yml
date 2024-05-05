@@ -11,16 +11,29 @@ services:
       - media_volume:/home/app/web/project/media
     expose:
       - 3214
-    env_file:
-      - ./.env.prod
+    environment:
+      - FLASK_APP=project/__init__.py
+      - FLASK_DEBUG=1
+      - FLASK_RUN_PORT=3214
+      - DATABASE_URL=postgresql://postgres:pass@localhost:9373
+      - SQL_HOST=postgres
+      - SQL_PORT=5432
+      - DATABASE=postgres
+      - APP_FOLDER=/usr/src/app
     depends_on:
-      - db
-  db:
-    image: postgres:13
+      - postgres
+
+  postgres:
+    build: services/postgres
     volumes:
-      - postgres_data_prod:/var/lib/postgresql/data/
-    env_file:
-      - ./.env.prod.db
+      - ./:/tmp/db
+      - postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pass
+      - PGUSER=postgres
+    ports:
+      - 9373:5432
   nginx:
     build: ./services/nginx
     volumes:
@@ -32,6 +45,6 @@ services:
       - web
 
 volumes:
-  postgres_data_prod:
+  postgres:
   static_volume:
   media_volume:
