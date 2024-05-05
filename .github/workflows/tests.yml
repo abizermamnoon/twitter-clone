@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: setup python
     - name: docker
       run: |
         docker-compose up -d --build
@@ -17,4 +16,4 @@ jobs:
         sleep 20
         pip install sqlalchemy
         pip install tqdm
-        python load_small.py
+        ./load_small.sh
