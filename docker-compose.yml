@@ -8,8 +8,15 @@ services:
       - ./services/web/:/usr/src/app/
     ports:
         - 3214:3214
-    env_file:
-      - ./.env.dev
+    environment:
+      - FLASK_APP=project/__init__.py
+      - FLASK_DEBUG=1 
+      - FLASK_RUN_PORT=3214
+      - DATABASE_URL=postgresql://postgres:pass@localhost:9373
+      - SQL_HOST=postgres
+      - SQL_PORT=5432
+      - DATABASE=postgres 
+      - APP_FOLDER=/usr/src/app
     depends_on:
       - postgres
   postgres:
