@@ -363,8 +363,15 @@ def search_message():
 
     try:
         tsquery_string = " & ".join(f"'{word.strip()}'" for word in message.split())
-        result = connection.execute(text("SELECT message FROM messages WHERE to_tsvector(message) @@ to_tsquery(:message);"), {"message": tsquery_string})
-        search_results = [row[0] for row in result.fetchall()]
+        query = """
+            SELECT id, ts_headline('english', message, to_tsquery(:message), 'StartSel="<mark><b>", StopSel="</b></mark>"') AS highlighted_message, created_at
+            FROM messages
+            WHERE to_tsvector(message) @@ to_tsquery(:message)
+            ORDER BY created_at;
+        """
+        #result = connection.execute(text("SELECT id, message, created_at FROM messages WHERE to_tsvector(message) @@ to_tsquery(:message) order by created_at;"), {"message": tsquery_string})
+        result = connection.execute(text(query), {"message": tsquery_string})
+        search_results = [row for row in result.fetchall()]
 
         # Pagination logic
         per_page = 20

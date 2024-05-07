@@ -22,3 +22,5 @@ create table messages (
     message text not null,
     created_at timestamp not null default current_timestamp
 );
+CREATE EXTENSION IF NOT EXISTS RUM;
+CREATE INDEX query_messages2 ON messages USING RUM(to_tsvector('english', message));

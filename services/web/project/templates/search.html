@@ -25,13 +25,17 @@ ERROR: Invalid message.
 <table>
   <thead>
     <tr>
+      <th>ID</th>
       <th>Message</th>
+      <th>Created At</th>
     </tr>
   </thead>
   <tbody>
     {% for result in search_results %}
     <tr>
-      <td>{{ result }}</td>
+      <td>{{ result.id }}</td>
+      <td>{{ result.highlighted_message | safe }}</td>
+      <td>{{ result.created_at }}</td>
     </tr>
     {% endfor %}
   </tbody>
