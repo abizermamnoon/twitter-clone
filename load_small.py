@@ -6,7 +6,7 @@ import string
 from sqlalchemy import create_engine
 
 # Database connection URI
-db_uri = "postgresql://postgres:pass@localhost:9373"
+db_uri = "postgresql://postgres:pass@postgres:9373"
 
 # Create the database engine
 engine = create_engine(db_uri, connect_args={'application_name': 'load_small.py'})
