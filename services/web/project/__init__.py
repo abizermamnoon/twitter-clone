@@ -25,13 +25,23 @@ class User(db.Model):
 
     def __init__(self, email):
         self.email = email
-
+messages =[]
 @app.route('/')
 def retrieve_messages():
+    global messages
+    messages=[]
     try:
         page_number = int(request.cookies.get('page_number', 1))
     except ValueError:
         page_number = 1
+    username = request.cookies.get('username')
+    password = request.cookies.get('password')
+
+    good_credentials = are_credentials_good(username, password)
+    if good_credentials:
+        logged_in = True
+    else:
+        logged_in = False
 
     per_page = 20  # Number of messages per page
     offset = (page_number - 1) * per_page
@@ -56,7 +66,7 @@ def retrieve_messages():
             'created_at': row[2],
         })
 
-    return render_template('index.html', messages=messages)
+    return render_template('index.html', messages=messages, logged_in = logged_in)
 
 def root():
     print_debug_info()
@@ -148,7 +158,7 @@ def login():
             response.set_cookie('username', username)
             response.set_cookie('password', password)
             return response
-    
+
 
 
 @app.route('/logout')
@@ -202,13 +212,13 @@ def create_user():
                     ),  {"username": username, "password": password, "age": age})  
                 template = render_template(
                     'login.html',
-                    bad_credentials=False,
-                    logged_in=True)
+                    bad_credentials=False
+                    )
                  #return template
                 response = make_response(template)
                 response.set_cookie('username',username)
                 response.set_cookie('password',password)
-                return response
+                return response 
             except sqlalchemy.exc.IntegrityError:
                 return render_template('create_user.html', already_exists=True)
 
@@ -327,10 +337,10 @@ def previous_page():
     response = make_response(redirect('/'))
     response.set_cookie('page_number',str(page_number))
     return response
-
-messages = []
+#messages = []
 @app.route('/search', methods=['GET', 'POST'])
 def search_message():
+    #messages = []
     global messages
     message = None
     username = request.cookies.get('username')
@@ -355,8 +365,7 @@ def search_message():
     if len(messages) > 0:
         message = messages[-1]
 
-
-    if message is None:
+    if message is None or isinstance(message, dict):
         return render_template('search.html', logged_in=logged_in)
     if not message:
         return render_template('search.html', invalid_message=True, logged_in=logged_in)
@@ -367,12 +376,19 @@ def search_message():
             SELECT id, ts_headline('english', message, to_tsquery(:message), 'StartSel="<mark><b>", StopSel="</b></mark>"') AS highlighted_message, created_at
             FROM messages
             WHERE to_tsvector(message) @@ to_tsquery(:message)
-            ORDER BY created_at;
+            ORDER BY to_tsvector(message) <=> to_tsquery(:message), created_at desc
+            OFFSET :offset;
         """
-        #result = connection.execute(text("SELECT id, message, created_at FROM messages WHERE to_tsvector(message) @@ to_tsquery(:message) order by created_at;"), {"message": tsquery_string})
-        result = connection.execute(text(query), {"message": tsquery_string})
-        search_results = [row for row in result.fetchall()]
+        result = connection.execute(text(query), {"message": tsquery_string, "offset": (page - 1) * 20})
+        rows = result.fetchall()
 
+        search_results = []
+        for row in rows:
+            search_results.append({
+                'id': row[0],
+                'highlighted_message': row[1],
+                'created_at': row[2],
+            })
         # Pagination logic
         per_page = 20
         total_pages = int(ceil(len(search_results) / per_page))
@@ -380,8 +396,9 @@ def search_message():
         end = start + per_page
         paginated_results = search_results[start:end]
 
+
         return render_template('search.html', search_results=paginated_results, logged_in=logged_in, page=page, total_pages=total_pages)
 
     except IntegrityError:
-        # Handle case where message insertion fails due to integrity error
         return render_template('search.html', already_exists=True, logged_in=logged_in)
+

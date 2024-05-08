@@ -26,4 +26,7 @@
     </table>
 </form>
 <p>New information.</p>
+{% if not bad_credentials and logged_in %}
+    <script>window.location.href = "/";</script>
+{% endif %}
 {% endblock %}

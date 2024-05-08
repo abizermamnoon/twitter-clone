@@ -22,4 +22,3 @@ jobs:
         pip install faker
         pip install sqlalchemy
         pip install tqdm
-        sh ./load_small.sh
